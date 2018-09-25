@@ -126,11 +126,11 @@ DNS是一个大型的分布式数据库，
 https://blog.csdn.net/sinat_26599509/article/details/51455350
 
 ### ACK FLOOD攻击
-
+利用TCP三次握手第二次握手。目标主机每收到一个带有 ack标志位的数据包时，都会去自己的TCP连接表中查看有没有与ack的发送者建立连接，花费大量资源。
 ### CC(Challenge Collapsar)攻击
-
+通过代理服务器或者大量“肉鸡” 模拟多个用户访问目标网站的动态页面，制造大量的后台数据库查询动作，消耗目标CPU资源，造成拒绝服务。
 ### UDP FLOOD攻击
-
+数据包通过UDP发送时，所有的数据包在发送和接收时不需要进行握手验证。当大量UDP数据包发送给受害系统时，可能会导致带宽饱和从而使得合法服务无法请求访问受害系统。
 ## 新型DoS
 
 ### 反射型DDoS
@@ -138,7 +138,12 @@ https://blog.csdn.net/sinat_26599509/article/details/51455350
 ### websocket DDoS
 
 ## DoS防御
-
+* 增加每次连接时的开销：如连接所需时间
+    * 但是对DDoS无效
+* ISP端过滤(流量清洗)：清洗是指将流量从原始网络路径中重定向到清洗设备上，通过清洗设备对该IP的流量成分进行正常和异常判断，丢弃异常流量，并对最终到达服务器的流量实施限流，减缓攻击对服务器造成的损害  <br>今年2月28日github遭受[DDoS攻击](击](击](https://githubengineering.com/ddos-incident-report/ "d/ "d/ "ddos-incident-report")时便是向Akamai请求协助接管流量。
+    * 使网络带宽明显下降
+* 交换机和路由器拒绝转发伪造的数据包
+    * 对现有协议做出较大改变
 ## Credits
 [Marsman1996](https://github.com/Marsman1996)<br>
 [n3vv](https://github.com/n3vv)<br>
