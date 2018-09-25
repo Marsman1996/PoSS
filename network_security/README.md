@@ -61,15 +61,15 @@ __阻止IP欺骗的另一种明显的方法是在通信时进行加密传输和�
 ## DNS安全
 ### DNS介绍
 <figure class="third">
-    < img src="DNS1.png" width = 30% height = 30% />
-    < img src="DNS2.png" width = 30% height = 30% />
-    < img src="DNS4.png" width = 30% height = 30% />
+    < img src="PoSS/network_security/DNS1.png" width = 30% height = 30% />
+    < img src="PoSS/network_security/DNS2.png" width = 30% height = 30% />
+    < img src="PoSS/network_security/DNS4.png" width = 30% height = 30% />
 </figure>
 DNS是一个大型的分布式数据库，
 一次完整的DNS查询首先由客户端向递归服务器发送需要查询的域名，然后递归服务器向根服务器查询com TLD服务器的地址，通过返回的IP地址到com 的TLD服务器获取存储了baidu.com的权威服务器的IP地址，最后向权威服务器查询得到www.baidu.com的IP地址，并将结果缓存。
 
 ### DNS脆弱性
-< img src="DNS3.png" width = 30% height = 30% />  <br>
+< img src="PoSS/network_security/DNS3.png" width = 30% height = 30% />  <br>
 如图3所示，整个DNS查询过程都通过UDP协议通信，易被篡改。和IPSec、SSL一样，有组织提出DNSSEC加强DNS安全性，但没有大范围普及。
 
 ### DNS攻击形式
