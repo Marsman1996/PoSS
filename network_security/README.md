@@ -61,7 +61,7 @@ __阻止IP欺骗的另一种明显的方法是在通信时进行加密传输和�
 ## DNS安全
 ### DNS介绍
 <figure class="third">
-    < img src="https://github.com/Marsman1996/PoSS/network_security/DNS1.png" width = 30% height = 30% />
+    < img src="DNS1.png" width = 30% height = 30% />
     < img src="https://github.com/Marsman1996/PoSS/network_security/DNS2.png" width = 30% height = 30% />
     < img src="https://github.com/Marsman1996/PoSS/network_security/DNS4.png" width = 30% height = 30% />
 </figure>
