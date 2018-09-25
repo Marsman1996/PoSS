@@ -142,7 +142,7 @@ websocket是HTML5一种新的协议。它实现了浏览器与服务器全双工
 ## DoS防御
 * 增加每次连接时的开销：如连接所需时间
     * 但是对DDoS无效
-* ISP端过滤(流量清洗)：清洗是指将流量从原始网络路径中重定向到清洗设备上，通过清洗设备对该IP的流量成分进行正常和异常判断，丢弃异常流量，并对最终到达服务器的流量实施限流，减缓攻击对服务器造成的损害  <br>今年2月28日github遭受[DDoS攻击](击](击](https://githubengineering.com/ddos-incident-report/ "d/ "d/ "ddos-incident-report")时便是向Akamai请求协助接管流量。
+* ISP端过滤(流量清洗)：清洗是指将流量从原始网络路径中重定向到清洗设备上，通过清洗设备对该IP的流量成分进行正常和异常判断，丢弃异常流量，并对最终到达服务器的流量实施限流，减缓攻击对服务器造成的损害  <br>今年2月28日github遭受[DDoS攻击](https://githubengineering.com/ddos-incident-report/ "ddos-incident-report")时便是向Akamai请求协助接管流量。
     * 使网络带宽明显下降
 * 交换机和路由器拒绝转发伪造的数据包
     * 对现有协议做出较大改变
