@@ -132,11 +132,13 @@ https://blog.csdn.net/sinat_26599509/article/details/51455350
 ### UDP FLOOD攻击
 数据包通过UDP发送时，所有的数据包在发送和接收时不需要进行握手验证。当大量UDP数据包发送给受害系统时，可能会导致带宽饱和从而使得合法服务无法请求访问受害系统。
 ## 新型DoS
-
 ### 反射型DDoS
-
+攻击者并不直接攻击目标服务 IP，而是利用互联网的某些特殊服务开放的服务器，通过伪造被攻击者的 IP 地址、向有开放服务的服务器发送构造的请求报文，该服务器会将数倍于请求报文的回复数据发送到被攻击 IP，从而对后者间接形成 DDoS 攻击。 
+常见的有NTP的monlist（listpeers也行）、DNS的AXFR（ANY也行）、SNMP的getbulkrequest。 
+其中，NTP是网络时间协议（Network Time Protocol）的简称，通过网络协议使计算机之间的时间同步化。攻击者通过在请求中伪造源IP地址并请求NTP服务器的monlist列表来进行反射和放大。[2014年](https://blog.cloudflare.com/technical-details-behind-a-400gbps-ntp-amplification-ddos-attack/ "NTP attack")著名网络服务提供商Cloudflare就遭受了以NTP作为DDoS放大器的攻击。  
+<!-- 今年2月28日github就遭受了[基于UDP的memcached流量DDoS攻击](https://githubengineering.com/ddos-incident-report/ "ddos-incident-report")也是一种反射型DDoS攻击。   -->
 ### websocket DDoS
-
+websocket是HTML5一种新的协议。它实现了浏览器与服务器全双工通信(full-duple)。目前主流的浏览器都能很好地支持websocket，而且用它实现DoS攻击也并不是很难，只要是在js代码中写入相应的代码，当人们打开这个网页时浏览器会自动执行js代码去请求连接要攻击的IP地址。
 ## DoS防御
 * 增加每次连接时的开销：如连接所需时间
     * 但是对DDoS无效
