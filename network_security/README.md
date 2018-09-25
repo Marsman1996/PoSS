@@ -146,7 +146,16 @@ websocket是HTML5一种新的协议。它实现了浏览器与服务器全双工
     * 使网络带宽明显下降
 * 交换机和路由器拒绝转发伪造的数据包
     * 对现有协议做出较大改变
+
+***
+
 ## Credits
 [Marsman1996](https://github.com/Marsman1996)<br>
 [n3vv](https://github.com/n3vv)<br>
-
+[Smilencelsy](https://github.com/Smilencelsy)<br>
+[Henry3II](https://github.com/Henry3II)<br>
+[liupuz](https://github.com/liupuz)<br>
+[liuweiqi18](https://github.com/liuweiqi18)<br>
+[qdtjvszxc](https://github.com/qdtjvszxc)<br>
+[BlackDiamond1995](https://github.com/BlackDiamond1995)<br>
+[]()<br>
