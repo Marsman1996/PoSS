@@ -16,7 +16,8 @@ I/O通信端口: in指令
   <p> - 测试 测试测试</p>
   <pre><code>  title，value，callBack可以缺省  </code>  </pre>
 </details> -->
-3. 混淆
+3. 混淆  
+
 
 ## Environment
 Win XP SP3 + VS2010
@@ -31,6 +32,7 @@ Win 10 + VS2017
 - [ ] 全局信息捕获？
 - [x] 虚拟机检测
 - [ ] 混淆
+- [ ] 反调试技术
 - [ ] 永久驻留 （添加服务？）
 
 ## REFERENCE

@@ -71,7 +71,7 @@ bool DetectVM(){
         }
     }
     __except(EXCEPTION_EXECUTE_HANDLER){
-        ;
+        is_VM = false;
     }
     if(is_VM){
         printf("I/O works\n");
