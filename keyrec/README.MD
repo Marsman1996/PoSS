@@ -1,4 +1,5 @@
 # 键盘钩子程序
+一个带反虚拟机反调试的键盘钩子，检测到虚拟机会自删除，运行时会隐藏窗口
 1. 键盘钩子原理  
 使用 *SetWindowsHookEx()* 函数捕获键盘消息   
 dllmain.cpp 中 有捕获键盘消息的存储位置
@@ -22,6 +23,8 @@ I/O通信端口: in指令
 修改PE头:
 4. 提权  
 *AdjustTokenPrivileges()*
+5. 永久驻留  
+
 
 
 
@@ -33,7 +36,7 @@ I/O通信端口: in指令
 ## Problems
 - 如何漂亮得显示捕获的消息从哪个程序来？
 - ~~win10下无法在C盘存储消息~~ MMP先创建一个文件夹再在文件夹里创建log
-- ~~win10下无法对notepad.exe捕获消息，只能对一些用户程序(?)捕获~~ win10下使用*PeekMessageA()*处理msg否则会卡死?
+- ~~win10下无法对notepad.exe捕获消息，只能对一些用户程序(?)捕获~~ win10下使用 *PeekMessageA()* 处理msg否则会卡死?
 
 ## TODO
 - [ ] 权限
@@ -41,8 +44,10 @@ I/O通信端口: in指令
 - [ ] 混淆 
 - [x] 反调试技术 
 - [ ] 永久驻留 （添加服务？）
+- [ ] 远程控制
 
 ## REFERENCE
 键盘钩子:   
-虚拟机检测: 《恶意代码分析实战》CH17; Analysis of the Intel Pentium’s Ability to Support a Secure Virtual Machine Monit A virtual machine monitor  
-反调试: 《恶意代码分析实战》CH15;   
+虚拟机检测: 《恶意代码分析实战》CH17; Analysis of the Intel Pentium’s Ability to Support a Secure Virtual Machine Monit A virtual machine monitor; [详解反虚拟机技术](https://blog.csdn.net/qq_32400847/article/details/52830990)  
+反调试: 《恶意代码分析实战》CH15; [详解反调试技术](https://blog.csdn.net/qq_32400847/article/details/52798050)  
+

