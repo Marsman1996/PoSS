@@ -22,7 +22,7 @@ I/O通信端口: in指令
 插入int 3: 检测到int 3指令, 系统首先从断点链表中寻找对应的断点信息结构体(SEH)，若没有找到则直接退出/报错  
 修改PE头:
 4. 提权  
-~~ *AdjustTokenPrivileges()* ~~ *RtlAdjustPrivilege()*
+~~*AdjustTokenPrivileges()*~~ *RtlAdjustPrivilege()*
 5. 永久驻留  
 通过加注册表实现开机自启 *RegCreateKeyEx()*  
 ~~添加服务?~~ In windows 7 service cannot interact with user desktop. So it is impossible. [ref](https://stackoverflow.com/questions/16665852/keyboard-hook-as-a-windows-service)
@@ -36,7 +36,7 @@ I/O通信端口: in指令
 实机: Win 10 + VS2017 + ANSI
 
 ## Problems
-- 如何漂亮得显示捕获的消息从哪个程序来？
+- ~~如何漂亮得显示捕获的消息从哪个程序来？~~ 在DLL中添加共享内存判断是否击键进程改变了
 - ~~win10下无法在C盘存储消息~~ MMP先创建一个文件夹再在文件夹里创建log
 - ~~win10下无法对notepad.exe捕获消息，只能对一些用户程序(?)捕获~~ win10下使用 *PeekMessageA()* 处理msg否则会卡死?
 
@@ -49,7 +49,7 @@ I/O通信端口: in指令
 - [ ] 远程控制
 
 ## REFERENCE
-键盘钩子:   
+键盘钩子: 《恶意代码分析实战》CH12.4  
 虚拟机检测: 《恶意代码分析实战》CH17; Analysis of the Intel Pentium’s Ability to Support a Secure Virtual Machine Monit A virtual machine monitor; [详解反虚拟机技术](https://blog.csdn.net/qq_32400847/article/details/52830990)  
 反调试: 《恶意代码分析实战》CH15; [详解反调试技术](https://blog.csdn.net/qq_32400847/article/details/52798050)  
 提权: [利用未文档化API：RtlAdjustPrivilege 提权实现自动关机](https://www.bbsmax.com/A/1O5EpZKbJ7/); [权限ID对照表](https://blog.csdn.net/zwfgdlc/article/details/52794551)  
