@@ -3,7 +3,7 @@
 1. 键盘钩子原理  
 使用 *SetWindowsHookEx()* 函数捕获键盘消息   
 dllmain.cpp 中 有捕获键盘消息的存储位置  
-![](./pic/hook.png)
+![](./pic/hook.PNG)
 
 2. 虚拟机检测  
 查看当前运行的进程  
@@ -37,4 +37,4 @@ I/O通信端口: in指令
 虚拟机检测: 《恶意代码分析实战》CH17; Analysis of the Intel Pentium’s Ability to Support a Secure Virtual Machine Monit A virtual machine monitor; [详解反虚拟机技术](https://blog.csdn.net/qq_32400847/article/details/52830990)  
 反调试: 《恶意代码分析实战》CH15; [详解反调试技术](https://blog.csdn.net/qq_32400847/article/details/52798050)  
 提权: [利用未文档化API：RtlAdjustPrivilege 提权实现自动关机](https://www.bbsmax.com/A/1O5EpZKbJ7/); [权限ID对照表](https://blog.csdn.net/zwfgdlc/article/details/52794551)  
-![](./pic/refbook.png)
+![](./pic/refbook.PNG)
