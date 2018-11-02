@@ -122,16 +122,16 @@ bool DetectVM(){
             mov    ebx, 0   //用于存放VMware所有响应的内存地址
             mov    ecx, 0xa //获取VMware版本，若为0x14则get the memory size
             mov    edx, 'VX'//为in指令指定VMware I/O通信端口
-            in     eax, dx 
+            in     eax, dx  //从源操作数指定的端口复制数据到目的操作数指定的内存地址
             cmp    ebx, 'VMXh' 
             setz   [is_VM] 
-            mov    [VM_ver], ecx
+            mov    [VM_ver], ecx  //存储VMware版本, 1=Express, 2=ESX, 3=GSX, 4=WorkStation
             pop    ebx
             pop    ecx
             pop    edx
         }
     }
-    __except(EXCEPTION_EXECUTE_HANDLER){
+    __except(EXCEPTION_EXECUTE_HANDLER){//若不在虚拟机中运行in指令会触发异常
         is_VM |= false;
     }
     if(is_VM){
