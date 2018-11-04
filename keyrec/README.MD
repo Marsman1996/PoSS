@@ -1,6 +1,7 @@
 # 键盘钩子程序
 一个带反虚拟机反调试的键盘钩子, 可以记录用户在哪个进程输入了什么内容, 检测到虚拟机或调试状态会立刻关机, 运行时会隐藏窗口  
 dllmain.cpp 中有捕获键盘消息的存储位置  
+[演示视频](https://github.com/Marsman1996/PoSS/issues/12)  
 ![键盘记录示意图](./pic/test.png)  
 
 ## Details
@@ -75,7 +76,7 @@ dllmain.cpp 中有捕获键盘消息的存储位置
    检测PEB中的 *BeingDebugged* 标志位
 3. 插入 *int 3* 中断:  
    检测到int 3指令, 系统首先从断点链表中寻找对应的断点信息结构体(SEH)，若没有找到则会直接跳出  
-4. 修改PE头:  
+4. 修改PE头: 只对OllyDBG 1.0x 有效  
    ![](./pic/PE_exploit.png)
 ### 提权
 *RtlAdjustPrivilege(ULONG Privilege, BOOLEAN Enable, BOOLEAN CurrentThread, PBOOLEAN Enabled)* = 
@@ -111,10 +112,10 @@ dllmain.cpp 中有捕获键盘消息的存储位置
 </details>
 
 ### 远程控制
-远程控制的原理是将套接字和cmd的标准流绑定。其简要过程如下：  
-1.控制端：使用netcat创建一个服务，本例使用本地ip与端口6666。  
-2.受害者：创建一个套接字，并与控制端服务器建立连接。之后绑定这个套接字与cmd.exe标准流（标准输入、标准输出以及标准错误）。调用CreatProcess函数用隐藏   窗口的方式创建cmd.exe程序，对受害者隐藏cmd.exe进程。  
-3.控制端：此时可以看到受害者cmd命令行，之后便可以进行命令行操作。本例使用dir命令列出了受害者当前目录下的文件作为演示。
+远程控制的原理是将套接字和cmd的标准流绑定. 演示使用两台Host-Only模式虚拟机, IP地址分别为192.168.166.128(控制端), 192.168.166.129(受控端), 其简要过程如下:  
+1. 控制端: 使用netcat创建一个服务, 本例使用端口6666.  
+2. 受害者: 创建一个套接字, 并与控制端服务器建立连接. 之后绑定这个套接字与cmd.exe标准流(标准输入、标准输出以及标准错误). 调用 *[CreatProcess](https://docs.microsoft.com/zh-cn/windows/desktop/api/processthreadsapi/nf-processthreadsapi-createprocessa)()* 用隐藏窗口的方式创建cmd.exe程序, 对受害者隐藏cmd.exe进程.  
+3. 控制端: 此时可以看到受害者cmd命令行, 之后便可以进行命令行操作. 本例使用dir命令列出了受害者当前目录下的文件并打开notepad作为演示.
 
 ## Environment
 虚拟机: Win XP SP3 + VS2010 + ANSI  
