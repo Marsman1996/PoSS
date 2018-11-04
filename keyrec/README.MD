@@ -22,7 +22,7 @@ dllmain.cpp 中有捕获键盘消息的存储位置
 | ---------- | ------------------------------------------------------------- |
 | code       | 用于确定如何处理消息的代码                                    |
 | wParam     | 虚拟键码, 详细见REFRENCE, 可用 *[ToAscii][1]()* 转化为ASCII码 |
-| lParam     | 击键信息资料 这个数的31位(bit)为0表示键按下，为1表示键释放    |
+| lParam     | 击键信息资料 这个数的31位(bit)为0表示键按下, 为1表示键释放    |
 
 ### 虚拟机检测
 1. 查看当前运行的进程  
@@ -39,7 +39,7 @@ dllmain.cpp 中有捕获键盘消息的存储位置
             push   ebx 
             mov    eax, 'VMXh'
             mov    ebx, 0   //用于存放VMware所有响应的内存地址
-            mov    ecx, 0xa //获取VMware版本，若为0x14则get the memory size
+            mov    ecx, 0xa //获取VMware版本, 若为0x14则get the memory size
             mov    edx, 'VX'//为in指令指定VMware I/O通信端口
             in     eax, dx  //从源操作数指定的端口复制数据到目的操作数指定的内存地址
             cmp    ebx, 'VMXh' 
@@ -75,9 +75,16 @@ dllmain.cpp 中有捕获键盘消息的存储位置
    ![PEB](./pic/PEB.png)  
    检测PEB中的 *BeingDebugged* 标志位
 3. 插入 *int 3* 中断:  
-   检测到int 3指令, 系统首先从断点链表中寻找对应的断点信息结构体(SEH)，若没有找到则会直接跳出  
-4. 修改PE头: 只对OllyDBG 1.0x 有效  
-   ![](./pic/PE_exploit.png)
+   检测到int 3指令, 系统首先从断点链表中寻找对应的断点信息结构体(SEH), 若没有找到则会直接跳出  
+
+<details>
+    <summary>MMP书上骗我</summary>
+    <p> 
+        修改PE头: 只对OllyDBG 1.0x 有效  
+        ![](./pic/PE_exploit.png)
+    </p>
+</details>
+
 ### 提权
 *RtlAdjustPrivilege(ULONG Privilege, BOOLEAN Enable, BOOLEAN CurrentThread, PBOOLEAN Enabled)* = 
 *[OpenProcessToken](https://docs.microsoft.com/en-us/windows/desktop/api/processthreadsapi/nf-processthreadsapi-openprocesstoken)()* + 
@@ -118,16 +125,21 @@ dllmain.cpp 中有捕获键盘消息的存储位置
 3. 控制端: 此时可以看到受害者cmd命令行, 之后便可以进行命令行操作. 本例使用dir命令列出了受害者当前目录下的文件并打开notepad作为演示.
 
 ### 加密
-数学运算符为XOR(exclusive OR),通常用"^"的符号表示。
-在二进制中：
-1 XOR 0=1
-0 XOR 1=1
-1 XOR 1=0
+使用 **多字节异或循环** 对字符串进行加密, 数学运算符为XOR(exclusive OR), 通常用"^"的符号表示.  
+在二进制中:  
+```
+1 XOR 0=1  
+0 XOR 1=1  
+1 XOR 1=0  
 0 XOR 0=0
-若两个数相同取0，不同取1。
-根据异或运算的特性，当对某一字符串做异或操作时，与之运算的字符串不同，便可以得到不同的结果，即可完成加密操作，解密操作直接对密文进行同样的异或操作即可。在本部分实现对程序中敏感字符串的异或加密。密钥为”４@!32^*125“。
-为避免在程序被逆向过程中泄露明文字符串，提取出程序中的“”包含的敏感字符串将其转换为ASCII后，使用异或进行加密。
-加密效果如图所示：
+```
+若两个数相同取0, 不同取1.  
+根据异或运算的特性, 当对某一字符串做异或操作时, 与之运算的字符串不同, 便可以得到不同的结果, 即可完成加密操作, 解密操作直接对密文进行同样的异或操作即可。  
+在本部分实现对程序中敏感字符串的异或加密. 密钥为 *4@!32^*125*  
+加密效果如图所示:  
+字符串加密前后数值见[issue9](https://github.com/Marsman1996/PoSS/issues/9)  
+下图是IDA打开未加密和加密后的string窗口, 可以看到加密后IDA识别的string少了许多
+![before_encrypt](./pic/before_encrypt.png) ![after_encrypt](./pic/after_encrypt.png)
 
 
 ## Environment
@@ -138,9 +150,10 @@ dllmain.cpp 中有捕获键盘消息的存储位置
 键盘钩子: 《恶意代码分析实战》CH12.4; [MSDN: Virtual-Key Codes](https://docs.microsoft.com/en-us/windows/desktop/inputdev/virtual-key-codes)  
 虚拟机检测: 《恶意代码分析实战》CH17; Analysis of the Intel Pentium’s Ability to Support a Secure Virtual Machine Monit A virtual machine monitor; [Blog: 详解反虚拟机技术](https://blog.csdn.net/qq_32400847/article/details/52830990)  
 反调试: 《恶意代码分析实战》CH15; [Blog: 详解反调试技术](https://blog.csdn.net/qq_32400847/article/details/52798050)  
-提权: 《恶意代码分析实战》CH11.5; [Windows关机方法](https://www.cnblogs.com/archen1983/archive/2010/10/26/1861925.html); [权限ID对照表](https://blog.csdn.net/zwfgdlc/article/details/52794551)  
+提权: 《恶意代码分析实战》CH11.5; [Blog: Windows关机方法](https://www.cnblogs.com/archen1983/archive/2010/10/26/1861925.html); [Blog: 权限ID对照表](https://blog.csdn.net/zwfgdlc/article/details/52794551)  
 永久驻留: 《恶意代码分析实战》CH11.4  
 加密: 《恶意代码分析实战》CH13  
+远程控制: 《恶意代码分析实战》CH11.2  
 ![参考书](./pic/refbook.PNG)
 
 [1]: https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-toascii "MSDN doc"

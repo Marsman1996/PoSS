@@ -1,7 +1,0 @@
-// all strings are encoded in hex.
-
-key = {unknown m-byte value}
-add = {unknown m-byte value}
-for (i = 0; i < len(text); i += m)
-  result[i:(i+m)] = text[i:(i+m)] ^ key
-  key = (result[i:(i+m)] + add) % (1<<8*m)
