@@ -117,6 +117,19 @@ dllmain.cpp 中有捕获键盘消息的存储位置
 2. 受害者: 创建一个套接字, 并与控制端服务器建立连接. 之后绑定这个套接字与cmd.exe标准流(标准输入、标准输出以及标准错误). 调用 *[CreatProcess](https://docs.microsoft.com/zh-cn/windows/desktop/api/processthreadsapi/nf-processthreadsapi-createprocessa)()* 用隐藏窗口的方式创建cmd.exe程序, 对受害者隐藏cmd.exe进程.  
 3. 控制端: 此时可以看到受害者cmd命令行, 之后便可以进行命令行操作. 本例使用dir命令列出了受害者当前目录下的文件并打开notepad作为演示.
 
+### 加密
+数学运算符为XOR(exclusive OR),通常用"^"的符号表示。
+在二进制中：
+1 XOR 0=1
+0 XOR 1=1
+1 XOR 1=0
+0 XOR 0=0
+若两个数相同取0，不同取1。
+根据异或运算的特性，当对某一字符串做异或操作时，与之运算的字符串不同，便可以得到不同的结果，即可完成加密操作，解密操作直接对密文进行同样的异或操作即可。在本部分实现对程序中敏感字符串的异或加密。密钥为”４@!32^*125“。
+为避免在程序被逆向过程中泄露明文字符串，提取出程序中的“”包含的敏感字符串将其转换为ASCII后，使用异或进行加密。
+加密效果如图所示：
+
+
 ## Environment
 虚拟机: Win XP SP3 + VS2010 + ANSI  
 实机: Win 10 + VS2017 + ANSI
