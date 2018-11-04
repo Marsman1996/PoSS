@@ -2,6 +2,7 @@
 一个带反虚拟机反调试的键盘钩子, 可以记录用户在哪个进程输入了什么内容, 检测到虚拟机或调试状态会立刻关机, 运行时会隐藏窗口  
 dllmain.cpp 中有捕获键盘消息的存储位置  
 [演示视频](https://github.com/Marsman1996/PoSS/issues/12)  
+[程序下载](https://github.com/Marsman1996/PoSS/releases)  
 ![键盘记录示意图](./pic/test.png)  
 
 ## Details
@@ -75,7 +76,7 @@ dllmain.cpp 中有捕获键盘消息的存储位置
    ![PEB](./pic/PEB.png)  
    检测PEB中的 *BeingDebugged* 标志位
 3. 插入 *int 3* 中断:  
-   检测到int 3指令, 系统首先从断点链表中寻找对应的断点信息结构体(SEH), 若没有找到则会直接跳出  
+   运行 int 3指令时, 若处于非调试状态, 系统进入结构化异常处理(SEH), 在这里异常会被 `__except` 捕获程序得以正常运行, 若没有执行 `__except` 中的语句则说明程序处于调试状态  
 
 <details>
     <summary>MMP书上骗我</summary>
