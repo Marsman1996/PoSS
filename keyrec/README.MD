@@ -121,9 +121,9 @@ dllmain.cpp 中有捕获键盘消息的存储位置
 
 ### 远程控制
 远程控制的原理是将套接字和cmd的标准流绑定. 演示使用两台Host-Only模式虚拟机, IP地址分别为192.168.166.128(控制端), 192.168.166.129(受控端), 其简要过程如下:  
-1. 控制端: 使用netcat创建一个服务, 本例使用端口6666.  
+1. 攻击者: 使用netcat创建一个服务, 本例使用端口6666.  
 2. 受害者: 创建一个套接字, 并与控制端服务器建立连接. 之后绑定这个套接字与cmd.exe标准流(标准输入、标准输出以及标准错误). 调用 *[CreatProcess](https://docs.microsoft.com/zh-cn/windows/desktop/api/processthreadsapi/nf-processthreadsapi-createprocessa)()* 用隐藏窗口的方式创建cmd.exe程序, 对受害者隐藏cmd.exe进程.  
-3. 控制端: 此时可以看到受害者cmd命令行, 之后便可以进行命令行操作. 本例使用dir命令列出了受害者当前目录下的文件并打开notepad作为演示.
+3. 攻击者: 此时可以看到受害者cmd命令行, 之后便可以进行命令行操作. 本例使用dir命令列出了受害者当前目录下的文件并打开notepad作为演示.
 
 ### 加密
 使用 **多字节异或循环** 对字符串进行加密, 数学运算符为XOR(exclusive OR), 通常用"^"的符号表示.  
