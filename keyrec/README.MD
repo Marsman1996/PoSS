@@ -138,9 +138,8 @@ dllmain.cpp 中有捕获键盘消息的存储位置
 在本部分实现对程序中敏感字符串的异或加密. 密钥为 *4@!32^*125*  
 加密效果如图所示:  
 字符串加密前后数值见[issue9](https://github.com/Marsman1996/PoSS/issues/9)  
-下图是IDA打开未加密和加密后的string窗口, 可以看到加密后IDA识别的string少了许多
-![before_encrypt](./pic/before_encrypt.png) ![after_encrypt](./pic/after_encrypt.png)
-
+下图是IDA打开未加密和加密后的string窗口, 可以看到加密后IDA识别的string少了许多  
+<img src="./pic/before_encrypt.png" width = 30% height = 30% /> <img src="./pic/after_encrypt.png" width = 30% height = 30% />
 
 ## Environment
 虚拟机: Win XP SP3 + VS2010 + ANSI  
