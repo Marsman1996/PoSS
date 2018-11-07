@@ -87,6 +87,8 @@ dllmain.cpp 中有捕获键盘消息的存储位置
 </details>
 
 ### 提权
+这里使用的是 Windows token  
+![token](./pic/token.jpg)  
 *RtlAdjustPrivilege(ULONG Privilege, BOOLEAN Enable, BOOLEAN CurrentThread, PBOOLEAN Enabled)* = 
 *[OpenProcessToken](https://docs.microsoft.com/en-us/windows/desktop/api/processthreadsapi/nf-processthreadsapi-openprocesstoken)()* + 
 *[LookupPrivilegeValue](https://docs.microsoft.com/en-us/windows/desktop/api/winbase/nf-winbase-lookupprivilegevaluea)()* + 
@@ -127,17 +129,9 @@ dllmain.cpp 中有捕获键盘消息的存储位置
 
 ### 加密
 使用 **多字节异或循环** 对字符串进行加密, 数学运算符为XOR(exclusive OR), 通常用"^"的符号表示.  
-在二进制中:  
-```
-1 XOR 0=1  
-0 XOR 1=1  
-1 XOR 1=0  
-0 XOR 0=0
-```
-若两个数相同取0, 不同取1.  
+在二进制中若两个数相同取0, 不同取1.  
 根据异或运算的特性, 当对某一字符串做异或操作时, 与之运算的字符串不同, 便可以得到不同的结果, 即可完成加密操作, 解密操作直接对密文进行同样的异或操作即可。  
 在本部分实现对程序中敏感字符串的异或加密. 密钥为 *4@!32^*125*  
-加密效果如图所示:  
 字符串加密前后数值见[issue9](https://github.com/Marsman1996/PoSS/issues/9)  
 下图是IDA打开未加密和加密后的string窗口, 可以看到加密后IDA识别的string少了许多  
 <img src="./pic/before_encrypt.png" width = 30% height = 30% /> <img src="./pic/after_encrypt.png" width = 30% height = 30% />
